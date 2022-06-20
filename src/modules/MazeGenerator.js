@@ -25,24 +25,24 @@ export function* generateMaze(grid){
   const startRow = Math.floor(Math.random() * grid.length - 1)
   current = grid[startRow][startCol];
   
-  current.visited = true;
-  current.head = true;
+  current.mazeGeneratorData.visited = true;
+  current.mazeGeneratorData.head = true;
   
   while(true){
     let next = current.getUnvisitedNeighbor(grid);
-    current.head = false;
+    current.mazeGeneratorData.head = false;
     if(next){
-      next.visited = true;
+      next.mazeGeneratorData.visited = true;
       
       stack.push(current);
 
       removeWallsBetween(current,next);
       current = next;
-      current.head = true;
+      current.mazeGeneratorData.head = true;
     }else if(stack.length > 0){
-      current.popped = true;
+      current.mazeGeneratorData.popped = true;
       current = stack.pop();
-      current.popped = true;
+      current.mazeGeneratorData.popped = true;
     }else{
       break;
     }
