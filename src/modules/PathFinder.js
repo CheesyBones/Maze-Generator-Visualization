@@ -4,7 +4,7 @@ function updateNeighborsInGrid(grid){
       grid[i][j].updateReachableNeighbors(grid);
     }
   }
-  console.log(grid[0][0]);
+  //console.log(grid[0][0]);
 }
 
 function dist(x1,x2,y1,y2){
