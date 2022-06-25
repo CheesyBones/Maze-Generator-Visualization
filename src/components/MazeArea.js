@@ -38,12 +38,96 @@ export default function MazeArea() {
   const [path, setPath] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPathFinding, setIsPathFinding] = useState(false);
-  var mouseDownOnCanvas = false;
 
+  var mouseDownOnCanvas = false;
+  var carryingStartCell = false;
+  var carryingEndCell = false;
+  var prevCellPos;
+  var updatedMazeArray = [];
+
+  const onMouseMove = (e) => {
+    const temp = [...mazeArray];
+    if(temp.length === 0) return;
+
+    const canvas = document.getElementById("maze-canvas");
+    const mousePos = getMousePos(canvas,e);
+    const cellPos = mousePosToCellPos(mousePos);
+
+    //console.log(cellPos);
+    const current = temp[cellPos.row][cellPos.col];
+
+    if(carryingStartCell){
+      setSpecialCells({...specialCells, startCell: {row: cellPos.row, col: cellPos.col}});
+    
+    } else if(carryingEndCell){
+      setSpecialCells({...specialCells, endCell: {row: cellPos.row, col: cellPos.col}});
+    } else if(mouseDownOnCanvas){
+      
+
+      if(prevCellPos){
+        const prevCell = temp[prevCellPos.row][prevCellPos.col];
+        if(!(current.row === prevCellPos.row && current.col === prevCellPos.col)){
+          const yDiff = current.row - prevCell.row;
+          const xDiff = current.col - prevCell.col;
+          if(yDiff <= 1 && yDiff >= -1 && xDiff <= 1 && xDiff >= -1){
+            if(!(yDiff !== 0 && xDiff !== 0)){
+
+            
+              if(current.row > prevCellPos.row){
+                current.walls[0] = false;
+                prevCell.walls[2] = false;
+              }else if(current.row < prevCellPos.row){
+                current.walls[2] = false;
+                prevCell.walls[0] = false;
+              }
+    
+              if(current.col > prevCellPos.col){
+                current.walls[3] = false;
+                prevCell.walls[1] = false;
+              }else if(current.col < prevCellPos.col){
+                current.walls[1] = false;
+                prevCell.walls[3] = false;
+              }  
+            }
+          }
+        }
+      }
+
+      prevCellPos = {row: current.row, col: current.col};
+      
+    }
+
+    updatedMazeArray = temp;
+    draw(updatedMazeArray);
+  };
+
+  const onMouseDown = (e) => {
+    const canvas = document.getElementById("maze-canvas");
+    const mousePos = getMousePos(canvas,e);
+    if(!mousePos.x || !mousePos.y) return;
+    mouseDownOnCanvas = true;
+    const cellPos = mousePosToCellPos(mousePos);
+    prevCellPos = cellPos;
+    console.log(specialCells);
+    if(cellPos.row === specialCells.startCell.row && cellPos.col === specialCells.startCell.col){
+      carryingStartCell = true;
+    }else if(cellPos.row === specialCells.endCell.row && cellPos.col === specialCells.endCell.col){
+      carryingEndCell = true;
+    }
+  };
+
+  const onMouseUp = (e) => {
+    if(mouseDownOnCanvas && updatedMazeArray.length > 0){
+      setMazeArray(updatedMazeArray);
+    }
+    console.log(specialCells);
+    carryingEndCell = false;
+    carryingStartCell = false;
+    mouseDownOnCanvas = false;
+  };
 
   useEffect(() => {
     getNewGrid();
-
   }, []);
 
   useEffect(() => {
@@ -55,7 +139,17 @@ export default function MazeArea() {
 
   useEffect(() => {
     //if (mazeArray.length === 0) return;
-    draw();
+    draw(mazeArray);
+    
+    document.addEventListener("mousedown",onMouseDown);
+    document.addEventListener("mouseup",onMouseUp);
+    document.addEventListener("mousemove",onMouseMove);
+
+    return () => {
+      document.removeEventListener("mousedown",onMouseDown);
+      document.removeEventListener("mouseup",onMouseUp);
+      document.removeEventListener("mousemove",onMouseMove);
+    }
   }, [mazeArray]);
 
   useEffect(() => {
@@ -69,6 +163,7 @@ export default function MazeArea() {
 
 
   }, [canvasData]);
+
 
   const getCellColor = (cell) => {
     let color = optionsData.colors.default;
@@ -97,14 +192,14 @@ export default function MazeArea() {
 
   }
 
-  const draw = () => {
+  const draw = (grid) => {
     const canvas = document.getElementById("maze-canvas");
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvasData.height, canvasData.width);
     ctx.beginPath();
-    for (let i = 0; i < mazeArray.length; i++) {
-      for (let j = 0; j < mazeArray[0].length; j++) {
-        const current = mazeArray[i][j];
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[0].length; j++) {
+        const current = grid[i][j];
         const y = current.row * canvasData.pixelRatio;
         const x = current.col * canvasData.pixelRatio;
 
@@ -139,41 +234,24 @@ export default function MazeArea() {
 
     /*document.removeEventListener("dragstart",onDragStart);
     document.addEventListener("dragstart",onDragStart);*/
+    
   }
 
   const mousePosToCellPos = (vector2) => {
-    const x = Math.floor((vector2.x / canvasData.width) * matrixDimensions.cols);
-    const y = Math.floor((vector2.y / canvasData.height) * matrixDimensions.rows);
+    let x = Math.floor((vector2.x / canvasData.width) * matrixDimensions.cols);
+    let y = Math.floor((vector2.y / canvasData.height) * matrixDimensions.rows);
 
+    if(isNaN(x)){
+      x = 0;
+    }
+    if(isNaN(y)){
+      y = 0;
+    }
+    
     return {
       col: x,
       row: y
     }
-  }
-
-  const onDragStart = (e) => {
-    const canvas = document.getElementById("maze-canvas");
-    const mp = getMousePos(canvas, e);
-    const cp = mousePosToCellPos(mp);
-  }
-
-  const onDragEnd = (e) => {
-    const canvas = document.getElementById("maze-canvas");
-    const mp = getMousePos(canvas, e);
-  }
-
-  const onMouseClick = (e) => {
-    e.preventDefault();
-    if (mazeArray.length === 0) return;
-    const canvas = document.getElementById("maze-canvas");
-    const mp = getMousePos(canvas, e);
-    if (!mp.x || !mp.y) return;
-    const cellPos = mousePosToCellPos(mp);
-    console.log(mazeArray[cellPos.y][cellPos.x]);
-    /*let temp = [...mazeArray];
-    temp[cellPos.y][cellPos.x].visited = true;
-    setMazeArray(temp);*/
-
   }
 
   const startGenerate = () => {
@@ -245,6 +323,7 @@ export default function MazeArea() {
     e.preventDefault();
     setIsGenerating(false);
     setIsPathFinding(false);
+    setSpecialCells({ startCell: { row: 0, col: 0 }, endCell: { row: matrixDimensions.rows - 1, col: matrixDimensions.cols - 1 } });
     clearAllIntervals();
     getNewGrid();
   }
