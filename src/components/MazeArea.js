@@ -56,14 +56,7 @@ export default function MazeArea() {
     //console.log(cellPos);
     const current = temp[cellPos.row][cellPos.col];
 
-    if(carryingStartCell){
-      setSpecialCells({...specialCells, startCell: {row: cellPos.row, col: cellPos.col}});
-    
-    } else if(carryingEndCell){
-      setSpecialCells({...specialCells, endCell: {row: cellPos.row, col: cellPos.col}});
-    } else if(mouseDownOnCanvas){
-      
-
+    if(mouseDownOnCanvas && !carryingEndCell && !carryingStartCell){
       if(prevCellPos){
         const prevCell = temp[prevCellPos.row][prevCellPos.col];
         if(!(current.row === prevCellPos.row && current.col === prevCellPos.col)){
@@ -108,7 +101,6 @@ export default function MazeArea() {
     mouseDownOnCanvas = true;
     const cellPos = mousePosToCellPos(mousePos);
     prevCellPos = cellPos;
-    console.log(specialCells);
     if(cellPos.row === specialCells.startCell.row && cellPos.col === specialCells.startCell.col){
       carryingStartCell = true;
     }else if(cellPos.row === specialCells.endCell.row && cellPos.col === specialCells.endCell.col){
@@ -118,9 +110,21 @@ export default function MazeArea() {
 
   const onMouseUp = (e) => {
     if(mouseDownOnCanvas && updatedMazeArray.length > 0){
+      if(path.length !== 0){
+        startPathFind(0);
+      }
       setMazeArray(updatedMazeArray);
     }
-    console.log(specialCells);
+    const canvas = document.getElementById("maze-canvas");
+    const mousePos = getMousePos(canvas,e);
+    const cellPos = mousePosToCellPos(mousePos);
+    
+    if(carryingStartCell){
+      setSpecialCells({...specialCells, startCell: {row: cellPos.row, col: cellPos.col}});
+    }else if(carryingEndCell){
+      setSpecialCells({...specialCells, endCell: {row: cellPos.row, col: cellPos.col}});
+    }
+
     carryingEndCell = false;
     carryingStartCell = false;
     mouseDownOnCanvas = false;
@@ -131,14 +135,13 @@ export default function MazeArea() {
   }, []);
 
   useEffect(() => {
-    let temp = [...mazeArray];
-    for (let i = 0; i < path.length; i++) {
-      temp[path[i].row][path[i].col].pathFinderData.inPath = true;
+    if(path.length !== 0){
+      startPathFind(0);
     }
-  }, [path])
+  },[specialCells])
 
   useEffect(() => {
-    //if (mazeArray.length === 0) return;
+    if (mazeArray.length === 0) return;
     draw(mazeArray);
     
     document.addEventListener("mousedown",onMouseDown);
@@ -286,12 +289,12 @@ export default function MazeArea() {
 
   }
 
-  const startPathFind = () => {
+  const startPathFind = (intervalLength) => {
+
     let gen = aStar([...mazeArray], specialCells.startCell, specialCells.endCell);
 
     let next = gen.next();
-
-    if (optionsData.intervalLength > 0) {
+    if (intervalLength > 0) {
       setInterval(() => {
         next = gen.next();
         if (next.done || !next.value) {
@@ -303,7 +306,7 @@ export default function MazeArea() {
         }
         //console.log(next.value);
 
-      }, optionsData.intervalLength);
+      }, intervalLength);
     } else {
       while (true) {
         next = gen.next();
@@ -333,7 +336,6 @@ export default function MazeArea() {
     if (isGenerating || isPathFinding) {
       return;
     }
-
     startGenerate();
   }
 
@@ -342,8 +344,7 @@ export default function MazeArea() {
     if (isPathFinding || isGenerating) {
       return;
     }
-
-    startPathFind();
+    startPathFind(optionsData.intervalLength);
   }
 
   return (

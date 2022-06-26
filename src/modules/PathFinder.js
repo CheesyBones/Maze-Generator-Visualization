@@ -17,6 +17,16 @@ function heuristic(a,b){
 }
 
 export function* aStar(grid,startPos,endPos){
+  console.log(endPos);
+  console.log(startPos);
+  console.log(grid);
+  for(let i = 0; i < grid.length; i++){
+    for(let j = 0; j < grid[0].length; j++){
+      grid[i][j].pathFinderData.inOpenSet = false;
+      grid[i][j].pathFinderData.inPath = false;
+    }
+  }
+
   updateNeighborsInGrid(grid);
 
   let path = [];
@@ -44,10 +54,14 @@ export function* aStar(grid,startPos,endPos){
       let temp = current;
       path.push(temp);
       while(temp.pathFinderData.previous){
-        
+
         path.push(temp.pathFinderData.previous);
+        temp.pathFinderData.previous.pathFinderData.inPath = true;
         temp = temp.pathFinderData.previous;
         yield {grid: grid, path: path};
+        if(temp === start){
+         break; 
+        }
         //temp.pathFinderData.inPath = true;
       }
       break;
