@@ -2,11 +2,6 @@ import { React, useState, useEffect } from 'react'
 import { generateGrid, generateMaze } from '../modules/MazeGenerator'
 import { aStar } from '../modules/PathFinder';
 
-const randomColor = () => {
-  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-  return '#' + randomColor;
-}
-
 const getMousePos = (canvas, e) => {
   let rect = canvas.getBoundingClientRect();
   let xPos = e.clientX - rect.left;
