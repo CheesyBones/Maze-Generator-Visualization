@@ -4,6 +4,10 @@ export default class Cell {
     this.col = col;
     this.walls = [true, true, true, true];
 
+    this.visualData = {
+      selected: false,
+    }
+
     this.mazeGeneratorData = {
       visited: false,
       head: false,

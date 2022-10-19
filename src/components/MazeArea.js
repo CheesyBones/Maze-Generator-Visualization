@@ -1,6 +1,6 @@
 import { React, useState, useEffect } from 'react'
-import { generateGrid, generateMaze } from '../modules/MazeGenerator'
-import { aStar } from '../modules/PathFinder';
+import { generateGrid, generateMaze } from '../lib/MazeGenerator'
+import { aStar } from '../lib/PathFinder';
 
 const getMousePos = (canvas, e) => {
   let rect = canvas.getBoundingClientRect();
