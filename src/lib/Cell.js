@@ -74,6 +74,8 @@ export default class Cell {
             reachableNeighbors.push(current);
           }
           break;
+        default:
+          break;
       }
     }
 
