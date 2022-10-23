@@ -1,5 +1,6 @@
 import { React, useState, useEffect } from 'react'
 import { generateGrid, generateMaze } from '../lib/mazeGenerator'
+import SettingsArea from "./SettingsArea";
 import { aStar } from '../lib/pathFinder';
 import { getMousePosOnCanvas, clearAllIntervals } from '../lib/helpers';
 
@@ -20,6 +21,43 @@ export default function MazeArea() {
   var carryingEndCell = false;
   var prevCellPos;
   var updatedMazeArray = [];
+
+  useEffect(() => {
+    getNewGrid();
+  }, []);
+
+  useEffect(() => {
+    if(path.length !== 0){
+      startPathFind(0);
+    }
+  },[specialCells])
+
+  useEffect(() => {
+    if (mazeArray.length === 0) return;
+    draw(mazeArray);
+    
+    document.addEventListener("mousedown",onMouseDown);
+    document.addEventListener("mouseup",onMouseUp);
+    document.addEventListener("mousemove",onMouseMove);
+
+    return () => {
+      document.removeEventListener("mousedown",onMouseDown);
+      document.removeEventListener("mouseup",onMouseUp);
+      document.removeEventListener("mousemove",onMouseMove);
+    }
+  }, [mazeArray]);
+
+  useEffect(() => {
+    setSpecialCells({ startCell: { row: 0, col: 0 }, endCell: { row: matrixDimensions.rows - 1, col: matrixDimensions.cols - 1 } });
+    getNewGrid();
+  }, [matrixDimensions])
+
+  useEffect(() => {
+    clearAllIntervals();
+    setMatrixDimensions({ rows: canvasData.height / canvasData.pixelRatio, cols: canvasData.width / canvasData.pixelRatio });
+
+
+  }, [canvasData]);
 
   const onMouseMove = (e) => {
     const temp = [...mazeArray];
@@ -104,44 +142,6 @@ export default function MazeArea() {
     carryingStartCell = false;
     mouseDownOnCanvas = false;
   };
-
-  useEffect(() => {
-    getNewGrid();
-  }, []);
-
-  useEffect(() => {
-    if(path.length !== 0){
-      startPathFind(0);
-    }
-  },[specialCells])
-
-  useEffect(() => {
-    if (mazeArray.length === 0) return;
-    draw(mazeArray);
-    
-    document.addEventListener("mousedown",onMouseDown);
-    document.addEventListener("mouseup",onMouseUp);
-    document.addEventListener("mousemove",onMouseMove);
-
-    return () => {
-      document.removeEventListener("mousedown",onMouseDown);
-      document.removeEventListener("mouseup",onMouseUp);
-      document.removeEventListener("mousemove",onMouseMove);
-    }
-  }, [mazeArray]);
-
-  useEffect(() => {
-    setSpecialCells({ startCell: { row: 0, col: 0 }, endCell: { row: matrixDimensions.rows - 1, col: matrixDimensions.cols - 1 } });
-    getNewGrid();
-  }, [matrixDimensions])
-
-  useEffect(() => {
-    clearAllIntervals();
-    setMatrixDimensions({ rows: canvasData.height / canvasData.pixelRatio, cols: canvasData.width / canvasData.pixelRatio });
-
-
-  }, [canvasData]);
-
 
   const getCellColor = (cell) => {
     let color = optionsData.colors.default;
@@ -255,6 +255,8 @@ export default function MazeArea() {
 
   const startPathFind = (intervalLength) => {
 
+    setIsPathFinding(true);
+
     let gen = aStar([...mazeArray], specialCells.startCell, specialCells.endCell);
 
     let next = gen.next();
@@ -285,6 +287,16 @@ export default function MazeArea() {
 
   }
 
+  const clearGrid = (e) => {
+    let temp = [...mazeArray];
+    for(let i = 0; i < temp.length; i++){
+      for(let j = 0; j < temp[0].length; j++){
+        temp[i][j].walls = [false,false,false,false];
+      }
+    }
+    setMazeArray(temp);
+  }
+
   const onResetClick = (e) => {
     e.preventDefault();
     setIsGenerating(false);
@@ -307,7 +319,24 @@ export default function MazeArea() {
     if (isPathFinding || isGenerating) {
       return;
     }
+    
     startPathFind(optionsData.intervalLength);
+  }
+
+  const onClearClick = (e) => {
+    e.preventDefault();
+    if(isPathFinding || isGenerating){
+      return;
+    }
+    clearGrid();
+  }
+
+  const onPRChange = (e) => {
+    setCanvasData({ ...canvasData, pixelRatio: pixelRatios[e.target.value] })
+  }
+  
+  const onIntervalChange = (e) => {
+    setOptionsData({ ...optionsData, intervalLength: e.target.value });
   }
 
   return (
@@ -315,7 +344,19 @@ export default function MazeArea() {
       <div className="canvas-area">
         <canvas id="maze-canvas" height={canvasData.height} width={canvasData.width}></canvas>
       </div>
-      <div className="settings-area">
+      <div>
+      <button className="btn-default" onClick={onGenerateClick} disabled={isGenerating}>Generate</button>
+      <button className="btn-default" onClick={onPathFindClick} disabled={isPathFinding}>Find Path</button>
+      <button className="btn-reset" onClick={onResetClick}>Reset</button>
+      <button className="btn-reset" onClick={onClearClick}>Clear</button>
+      </div>
+      <SettingsArea onIntervalChange={onIntervalChange} onPRChange={onPRChange} intervalValue={optionsData.intervalLength}  prValue={pixelRatios.indexOf(canvasData.pixelRatio)} prLength={pixelRatios.length - 1} />
+    </div>
+  )
+}
+
+/*
+<div className="settings-area hide">
         <span className='setting-label-default'>Interval Length</span><input type="range" min="0" max="125"
           value={optionsData.intervalLength}
           onChange={(e) => { setOptionsData({ ...optionsData, intervalLength: e.target.value }) }}
@@ -323,10 +364,4 @@ export default function MazeArea() {
         <span className='setting-label-default'>Pixel Ratio</span><input type="range" min="0" max={pixelRatios.length - 1}
           value={pixelRatios.indexOf(canvasData.pixelRatio)}
           onChange={(e) => { setCanvasData({ ...canvasData, pixelRatio: pixelRatios[e.target.value] }) }} />
-      </div>
-      <button className="btn-default" onClick={onGenerateClick} disabled={isGenerating}>Generate</button>
-      <button className="btn-reset" onClick={onResetClick}>Reset</button>
-      <button className="btn-default" onClick={onPathFindClick} disabled={isPathFinding}>Find Path</button>
-    </div>
-  )
-}
+      </div>*/
