@@ -12,9 +12,9 @@ export default function SettingsArea(props) {
     <>
     <button className="btn-collapse" onClick={toggleCollapse} unselectable="on">{`Settings ${isCollapsed ? "+" : "-"}`}</button>
     <div className={`settings-area ${isCollapsed ? "hide" : ""}`}>
-        <span className='setting-label-default'>Interval Length</span><input type="range" min="0" max="125"
-          value={props.intervalValue}
-          onChange={props.onIntervalChange}
+        <span className='setting-label-default'>Speed</span><input type="range" min="0" max="125"
+          value={props.speedValue}
+          onChange={props.onSpeedChange}
         />
         <span className='setting-label-default'>Pixel Ratio</span><input type="range" min="0" max={props.prLength}
           value={props.prValue}

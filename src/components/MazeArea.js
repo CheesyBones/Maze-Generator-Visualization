@@ -10,7 +10,7 @@ export default function MazeArea() {
   const [mazeArray, setMazeArray] = useState([]);
   const [canvasData, setCanvasData] = useState({ width: 800, height: 800, pixelRatio: 32 });
   const [matrixDimensions, setMatrixDimensions] = useState({ rows: canvasData.height / canvasData.pixelRatio, cols: canvasData.width / canvasData.pixelRatio });
-  const [optionsData, setOptionsData] = useState({ intervalLength: 20, wallWidth: 2, colors: { head: '#FF00CD', visited: '#B900FF', popped: 'white', default: 'lightgrey', start: '#00FF2A', end: '#FF0000', path: '#00E0FF', openSet: '#FF0074' } });
+  const [optionsData, setOptionsData] = useState({ intervalLength: 20, intervalMax: 125, wallWidth: 2, colors: { head: '#FF00CD', visited: '#B900FF', popped: 'white', default: 'lightgrey', start: '#00FF2A', end: '#FF0000', path: '#00E0FF', openSet: '#FF0074' } });
   const [specialCells, setSpecialCells] = useState({ startCell: { row: 0, col: 0 }, endCell: { row: matrixDimensions.rows - 1, col: matrixDimensions.cols - 1 } });
   const [path, setPath] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -337,7 +337,7 @@ export default function MazeArea() {
   }
   
   const onIntervalChange = (e) => {
-    setOptionsData({ ...optionsData, intervalLength: e.target.value });
+    setOptionsData({ ...optionsData, intervalLength: optionsData.intervalMax - e.target.value });
   }
 
   return (
@@ -351,7 +351,7 @@ export default function MazeArea() {
       <button className="btn-reset" onClick={onResetClick}>Reset</button>
       <button className="btn-reset" onClick={onClearClick}>Clear</button>
       </div>
-      <SettingsArea onIntervalChange={onIntervalChange} onPRChange={onPRChange} intervalValue={optionsData.intervalLength}  prValue={pixelRatios.indexOf(canvasData.pixelRatio)} prLength={pixelRatios.length - 1} />
+      <SettingsArea onSpeedChange={onIntervalChange} onPRChange={onPRChange} speedValue={optionsData.intervalMax - optionsData.intervalLength}  prValue={pixelRatios.indexOf(canvasData.pixelRatio)} prLength={pixelRatios.length - 1} intervalMax = {optionsData.intervalMax} />
     </div>
   )
 }
