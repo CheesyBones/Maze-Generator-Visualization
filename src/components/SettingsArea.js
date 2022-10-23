@@ -1,10 +1,17 @@
-import React from 'react'
+import {React, useState} from 'react'
 
 export default function SettingsArea(props) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleCollapse = (e) => {
+    e.preventDefault();
+    setIsCollapsed(!isCollapsed);
+  }
+
   return (
     <>
-    <a className="btn-collapse">+</a>
-    <div className="settings-area">
+    <button className="btn-collapse" onClick={toggleCollapse} unselectable="on">{`Settings ${isCollapsed ? "+" : "-"}`}</button>
+    <div className={`settings-area ${isCollapsed ? "hide" : ""}`}>
         <span className='setting-label-default'>Interval Length</span><input type="range" min="0" max="125"
           value={props.intervalValue}
           onChange={props.onIntervalChange}
