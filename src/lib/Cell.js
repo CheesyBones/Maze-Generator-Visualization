@@ -4,6 +4,10 @@ export default class Cell {
     this.col = col;
     this.walls = [true, true, true, true];
 
+    this.visualData = {
+      selected: false,
+    }
+
     this.mazeGeneratorData = {
       visited: false,
       head: false,
@@ -69,6 +73,8 @@ export default class Cell {
           if (!current.walls[1] && !this.walls[3]) {
             reachableNeighbors.push(current);
           }
+          break;
+        default:
           break;
       }
     }

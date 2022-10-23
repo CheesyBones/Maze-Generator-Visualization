@@ -11,8 +11,12 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <MazeArea />
       </header>
+        <MazeArea />
+        <a href="https://github.com/CheesyBones/Maze-Generator-Visualization">
+        <img id="github-icon" src={process.env.PUBLIC_URL + '/images/github.png'}></img>
+
+        </a>
     </div>
   );
 }
