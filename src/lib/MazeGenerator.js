@@ -24,6 +24,9 @@ export function* generateMaze(grid){
   const startCol = Math.floor(Math.random() * grid[0].length - 1)
   const startRow = Math.floor(Math.random() * grid.length - 1)
   current = grid[startRow][startCol];
+  if(current.mazeGeneratorData.popped){
+    return;
+  }
   
   current.mazeGeneratorData.visited = true;
   current.mazeGeneratorData.head = true;
