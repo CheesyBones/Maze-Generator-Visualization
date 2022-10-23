@@ -4,7 +4,6 @@ function updateNeighborsInGrid(grid){
       grid[i][j].updateReachableNeighbors(grid);
     }
   }
-  //console.log(grid[0][0]);
 }
 
 function dist(x1,x2,y1,y2){
@@ -17,9 +16,6 @@ function heuristic(a,b){
 }
 
 export function* aStar(grid,startPos,endPos){
-  console.log(endPos);
-  console.log(startPos);
-  console.log(grid);
   for(let i = 0; i < grid.length; i++){
     for(let j = 0; j < grid[0].length; j++){
       grid[i][j].pathFinderData.inOpenSet = false;
