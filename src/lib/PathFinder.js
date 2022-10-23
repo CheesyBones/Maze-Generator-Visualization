@@ -79,9 +79,10 @@ export function* aStar(grid,startPos,endPos){
 
       const tempG = current.pathFinderData.g + 1;
 
+      let gScoreIsBest = false;
       if(openSet.includes(neighbor)){
         if(tempG < neighbor.pathFinderData.g){
-          neighbor.pathFinderData.g = tempG;
+          gScoreIsBest = true;
         }
       }else{
         neighbor.pathFinderData.g = tempG;
@@ -89,8 +90,11 @@ export function* aStar(grid,startPos,endPos){
         openSet.push(neighbor);
       }
 
-      neighbor.pathFinderData.h = heuristic(neighbor,end);
-      neighbor.pathFinderData.f = neighbor.pathFinderData.g + neighbor.pathFinderData.h;
+      if(gScoreIsBest){
+        neighbor.pathFinderData.g = tempG;
+        neighbor.pathFinderData.h = heuristic(neighbor,end);
+        neighbor.pathFinderData.f = neighbor.pathFinderData.g + neighbor.pathFinderData.h;
+      }
       neighbor.pathFinderData.previous = current;
     }
     yield {grid: grid, path: path};
