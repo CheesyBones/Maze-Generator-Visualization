@@ -292,6 +292,7 @@ export default function MazeArea() {
     for(let i = 0; i < temp.length; i++){
       for(let j = 0; j < temp[0].length; j++){
         temp[i][j].walls = [false,false,false,false];
+        temp[i][j].mazeGeneratorData.popped = true;
       }
     }
     setMazeArray(temp);
@@ -354,14 +355,3 @@ export default function MazeArea() {
     </div>
   )
 }
-
-/*
-<div className="settings-area hide">
-        <span className='setting-label-default'>Interval Length</span><input type="range" min="0" max="125"
-          value={optionsData.intervalLength}
-          onChange={(e) => { setOptionsData({ ...optionsData, intervalLength: e.target.value }) }}
-        />
-        <span className='setting-label-default'>Pixel Ratio</span><input type="range" min="0" max={pixelRatios.length - 1}
-          value={pixelRatios.indexOf(canvasData.pixelRatio)}
-          onChange={(e) => { setCanvasData({ ...canvasData, pixelRatio: pixelRatios[e.target.value] }) }} />
-      </div>*/
