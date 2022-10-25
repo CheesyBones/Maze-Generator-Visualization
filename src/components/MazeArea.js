@@ -48,7 +48,7 @@ export default function MazeArea() {
       document.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mousemove", onMouseMove);
     }
-  }, [mazeArray,optionsData]);
+  }, [mazeArray, optionsData]);
 
   useEffect(() => {
     setSpecialCells({ startCell: { row: 0, col: 0 }, endCell: { row: matrixDimensions.rows - 1, col: matrixDimensions.cols - 1 } });
@@ -72,34 +72,36 @@ export default function MazeArea() {
 
     const current = temp[cellPos.row][cellPos.col];
 
-    if (mouseDownOnCanvas && !carryingEndCell && !carryingStartCell) {
-      if (optionsData.buildMode) {
-        current.walls = [true,true,true,true]
-      } else {
+    if (mouseDownOnCanvas) {
+      if (!carryingEndCell && !carryingStartCell) {
+        if (optionsData.buildMode) {
+          current.walls = [true, true, true, true]
+        } else {
 
-        if (prevCellPos) {
-          const prevCell = temp[prevCellPos.row][prevCellPos.col];
-          if (!(current.row === prevCellPos.row && current.col === prevCellPos.col)) {
-            const yDiff = current.row - prevCell.row;
-            const xDiff = current.col - prevCell.col;
-            if (yDiff <= 1 && yDiff >= -1 && xDiff <= 1 && xDiff >= -1) {
-              if (!(yDiff !== 0 && xDiff !== 0)) {
+          if (prevCellPos) {
+            const prevCell = temp[prevCellPos.row][prevCellPos.col];
+            if (!(current.row === prevCellPos.row && current.col === prevCellPos.col)) {
+              const yDiff = current.row - prevCell.row;
+              const xDiff = current.col - prevCell.col;
+              if (yDiff <= 1 && yDiff >= -1 && xDiff <= 1 && xDiff >= -1) {
+                if (!(yDiff !== 0 && xDiff !== 0)) {
 
 
-                if (current.row > prevCellPos.row) {
-                  current.walls[0] = false;
-                  prevCell.walls[2] = false;
-                } else if (current.row < prevCellPos.row) {
-                  current.walls[2] = false;
-                  prevCell.walls[0] = false;
-                }
+                  if (current.row > prevCellPos.row) {
+                    current.walls[0] = false;
+                    prevCell.walls[2] = false;
+                  } else if (current.row < prevCellPos.row) {
+                    current.walls[2] = false;
+                    prevCell.walls[0] = false;
+                  }
 
-                if (current.col > prevCellPos.col) {
-                  current.walls[3] = false;
-                  prevCell.walls[1] = false;
-                } else if (current.col < prevCellPos.col) {
-                  current.walls[1] = false;
-                  prevCell.walls[3] = false;
+                  if (current.col > prevCellPos.col) {
+                    current.walls[3] = false;
+                    prevCell.walls[1] = false;
+                  } else if (current.col < prevCellPos.col) {
+                    current.walls[1] = false;
+                    prevCell.walls[3] = false;
+                  }
                 }
               }
             }
@@ -107,9 +109,10 @@ export default function MazeArea() {
         }
       }
 
+
       prevCellPos = { row: current.row, col: current.col };
 
-    }
+    } 
 
     updatedMazeArray = temp;
     draw(updatedMazeArray);
@@ -350,7 +353,6 @@ export default function MazeArea() {
 
   const onBuildModeClick = (e) => {
     setOptionsData({ ...optionsData, buildMode: e.target.checked });
-    console.log(e.target.checked);
   }
 
   return (
