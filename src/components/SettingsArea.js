@@ -19,6 +19,10 @@ export default function SettingsArea(props) {
         <span className='setting-label-default'>Pixel Ratio</span><input type="range" min="0" max={props.prLength}
           value={props.prValue}
           onChange={props.onPRChange} />
+        <span className='setting-label-default'>
+          Build Mode
+          <input type="checkbox" onChange={props.onBuildModeClick} value={props.buildModeValue} />
+        </span>
       </div>
       </>
   )
